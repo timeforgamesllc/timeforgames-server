@@ -1,49 +1,39 @@
 import express from "express";
 import fetch from "node-fetch";
 import cors from "cors";
-import dotenv from "dotenv";
-
-dotenv.config();
+import cheerio from "cheerio"; // for HTML parsing
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 
-const EBAY_SELLER_ID = "timeforgamesllc";
+const STORE_URL = "https://www.ebay.com/str/timeforgamesllc";
 
 app.get("/listings", async (req, res) => {
   try {
-    // Use "pokemon" as required search term
-    const url = `https://api.ebay.com/buy/browse/v1/item_summary/search?q=pokemon&filter=sellerIds:{${EBAY_SELLER_ID}}&limit=50`;
+    const response = await fetch(STORE_URL);
+    const html = await response.text();
 
-    const response = await fetch(url, {
-      headers: {
-        "Authorization": `Bearer ${process.env.EBAY_OAUTH_TOKEN}`,
-        "Content-Type": "application/json",
-      },
+    const $ = cheerio.load(html);
+
+    const listings = [];
+
+    $(".s-item").each((i, el) => {
+      const title = $(el).find(".s-item__title").text().trim();
+      const link = $(el).find(".s-item__link").attr("href");
+      const image = $(el).find(".s-item__image-img").attr("src") || "https://via.placeholder.com/300x200.png?text=No+Image";
+      const price = $(el).find(".s-item__price").first().text().trim();
+
+      if (title && link) {
+        listings.push({ title, link, image, price });
+      }
     });
 
-    if (!response.ok) {
-      const text = await response.text();
-      console.error("eBay API fetch failed:", text);
-      return res.status(500).json({ error: "Failed to fetch eBay listings" });
-    }
-
-    const data = await response.json();
-
-    const listings = (data.itemSummaries || []).map(item => ({
-      title: item.title,
-      link: item.itemWebUrl,
-      image: item.image?.imageUrl || "https://via.placeholder.com/300x200.png?text=No+Image",
-      price: item.price?.value ? `${item.price.value} ${item.price.currency}` : "N/A",
-    }));
-
-    res.json({ itemSummaries: listings });
-
+    res.json({ itemSummaries: listings.slice(0, 50) }); // limit to first 50 listings
   } catch (err) {
-    console.error("Server error:", err);
-    res.status(500).json({ error: "Server error" });
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch listings" });
   }
 });
 
