@@ -14,8 +14,7 @@ const EBAY_SELLER_ID = "timeforgamesllc";
 
 app.get("/listings", async (req, res) => {
   try {
-    const query = req.query.q || "";
-
+    // Use "pokemon" as required search term
     const url = `https://api.ebay.com/buy/browse/v1/item_summary/search?q=pokemon&filter=sellerIds:{${EBAY_SELLER_ID}}&limit=50`;
 
     const response = await fetch(url, {
@@ -25,13 +24,22 @@ app.get("/listings", async (req, res) => {
       },
     });
 
-    // Log the HTTP status and body
-    const text = await response.text();
-    console.log("eBay API status:", response.status);
-    console.log("eBay API response:", text);
+    if (!response.ok) {
+      const text = await response.text();
+      console.error("eBay API fetch failed:", text);
+      return res.status(500).json({ error: "Failed to fetch eBay listings" });
+    }
 
-    // Return the raw response to the browser for inspection
-    res.send(text);
+    const data = await response.json();
+
+    const listings = (data.itemSummaries || []).map(item => ({
+      title: item.title,
+      link: item.itemWebUrl,
+      image: item.image?.imageUrl || "https://via.placeholder.com/300x200.png?text=No+Image",
+      price: item.price?.value ? `${item.price.value} ${item.price.currency}` : "N/A",
+    }));
+
+    res.json({ itemSummaries: listings });
 
   } catch (err) {
     console.error("Server error:", err);
