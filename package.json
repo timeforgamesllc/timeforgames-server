@@ -1,5 +1,5 @@
 {
-  "name": "ebay-listings-server",
+  "name": "timeforgames-server",
   "version": "1.0.0",
   "description": "Server fetching eBay listings from RSS feed",
   "main": "server.js",
