@@ -12,7 +12,7 @@ app.use(cors()); // Allow browser requests
 
 app.get("/listings", async (req, res) => {
   const query = req.query.q || ""; // optional search term
-  const username = "YOUR_EBAY_USERNAME"; // <-- Replace with your eBay seller ID
+  const username = "timeforgamesllc"; // <-- Replace with your eBay seller ID
 
   try {
     // Fetch listings from eBay API, filtered by your seller ID
