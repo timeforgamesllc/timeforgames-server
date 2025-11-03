@@ -8,6 +8,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 
+// eBay RSS feed URL for your store
 const EBAY_RSS_URL = "https://www.ebay.com/sch/timeforgamesllc/m.html?_rss=1";
 
 app.get("/listings", async (req, res) => {
@@ -22,12 +23,13 @@ app.get("/listings", async (req, res) => {
 
     parser.parseString(xmlData, (err, result) => {
       if (err) {
+        console.error("XML parse error:", err);
         return res.status(500).json({ error: "Failed to parse RSS feed" });
       }
 
-      // Attempt to extract items robustly
-      const channel = result.rss?.channel;
+      // Extract items from feed
       let items = [];
+      const channel = result.rss?.channel;
       if (channel) {
         if (Array.isArray(channel.item)) {
           items = channel.item;
@@ -36,8 +38,9 @@ app.get("/listings", async (req, res) => {
         }
       }
 
+      // Map to front-end format
       const listings = items.map(item => {
-        // Extract image from description
+        // Extract first image from description
         const imgMatch = item.description?.match(/<img.*?src="(.*?)"/);
         const imageUrl = imgMatch ? imgMatch[1] : "https://via.placeholder.com/300x200.png?text=No+Image";
 
@@ -54,10 +57,6 @@ app.get("/listings", async (req, res) => {
           price: priceText
         };
       });
-
-      if (listings.length === 0) {
-        return res.json({ itemSummaries: [] });
-      }
 
       res.json({ itemSummaries: listings });
     });
