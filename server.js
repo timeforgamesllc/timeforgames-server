@@ -7,6 +7,7 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const username = "timeforgamesllc";
 
 app.use(cors()); // Allow cross-origin requests
 
@@ -15,7 +16,7 @@ app.get("/listings", async (req, res) => {
 
   try {
     const response = await fetch(
-      `https://api.ebay.com/buy/browse/v1/item_summary/search?q=${encodeURIComponent(query)}&limit=10`,
+      `https://api.ebay.com/buy/browse/v1/item_summary/search?q=pokemon&filter=sellerIds:{${username}}&limit=50`,
       {
         headers: {
           "Authorization": `Bearer ${process.env.EBAY_OAUTH_TOKEN}`,
