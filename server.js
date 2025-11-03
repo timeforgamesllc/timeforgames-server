@@ -16,9 +16,7 @@ app.get("/listings", async (req, res) => {
   try {
     const query = req.query.q || "";
 
-    const url = `https://api.ebay.com/buy/browse/v1/item_summary/search?q=${encodeURIComponent(
-      query
-    )}&filter=sellerIds:{${EBAY_SELLER_ID}}&limit=5`; // small limit for testing
+    const url = `https://api.ebay.com/buy/browse/v1/item_summary/search?q=pokemon&filter=sellerIds:{${EBAY_SELLER_ID}}&limit=50`;
 
     const response = await fetch(url, {
       headers: {
