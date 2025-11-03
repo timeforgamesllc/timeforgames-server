@@ -27,7 +27,6 @@ app.get("/listings", async (req, res) => {
         return res.status(500).json({ error: "Failed to parse RSS feed" });
       }
 
-      // Extract items from feed
       let items = [];
       const channel = result.rss?.channel;
       if (channel) {
@@ -38,21 +37,16 @@ app.get("/listings", async (req, res) => {
         }
       }
 
-      // Map to front-end format
       const listings = items.map(item => {
-        // Extract first image from description
         const imgMatch = item.description?.match(/<img.*?src="(.*?)"/);
         const imageUrl = imgMatch ? imgMatch[1] : "https://via.placeholder.com/300x200.png?text=No+Image";
 
-        // Extract price from description
         const priceMatch = item.description?.match(/\$\d+(?:\.\d{2})?/);
         const priceText = priceMatch ? priceMatch[0] : "N/A";
 
         return {
           title: item.title,
           link: item.link,
-          description: item.description,
-          pubDate: item.pubDate,
           image: imageUrl,
           price: priceText
         };
