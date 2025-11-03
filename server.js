@@ -10,17 +10,15 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 
-// Your eBay seller ID
 const EBAY_SELLER_ID = "timeforgamesllc";
 
 app.get("/listings", async (req, res) => {
   try {
-    const query = req.query.q || ""; // optional search term
+    const query = req.query.q || "";
 
-    // eBay Browse API endpoint filtered by seller
     const url = `https://api.ebay.com/buy/browse/v1/item_summary/search?q=${encodeURIComponent(
       query
-    )}&filter=sellerIds:{${EBAY_SELLER_ID}}&limit=50`;
+    )}&filter=sellerIds:{${EBAY_SELLER_ID}}&limit=5`; // small limit for testing
 
     const response = await fetch(url, {
       headers: {
@@ -29,23 +27,14 @@ app.get("/listings", async (req, res) => {
       },
     });
 
-    if (!response.ok) {
-      const text = await response.text();
-      console.error("eBay API fetch failed:", text);
-      return res.status(500).json({ error: "Failed to fetch eBay listings" });
-    }
+    // Log the HTTP status and body
+    const text = await response.text();
+    console.log("eBay API status:", response.status);
+    console.log("eBay API response:", text);
 
-    const data = await response.json();
+    // Return the raw response to the browser for inspection
+    res.send(text);
 
-    // Map data to front-end format
-    const listings = (data.itemSummaries || []).map(item => ({
-      title: item.title,
-      link: item.itemWebUrl,
-      image: item.image?.imageUrl || "https://via.placeholder.com/300x200.png?text=No+Image",
-      price: item.price?.value ? `${item.price.value} ${item.price.currency}` : "N/A",
-    }));
-
-    res.json({ itemSummaries: listings });
   } catch (err) {
     console.error("Server error:", err);
     res.status(500).json({ error: "Server error" });
