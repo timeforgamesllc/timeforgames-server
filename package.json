@@ -1,7 +1,7 @@
 {
   "name": "timeforgames-server",
   "version": "1.0.0",
-  "description": "Server fetching eBay listings from RSS feed",
+  "description": "Server fetching eBay listings from Browse API",
   "main": "server.js",
   "type": "module",
   "scripts": {
@@ -11,6 +11,6 @@
     "express": "^4.18.2",
     "node-fetch": "^3.3.2",
     "cors": "^2.8.5",
-    "xml2js": "^0.5.0"
+    "dotenv": "^16.3.1"
   }
 }
