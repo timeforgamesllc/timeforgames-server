@@ -1,16 +1,21 @@
 import express from "express";
 import fetch from "node-fetch";
 import dotenv from "dotenv";
+import cors from "cors";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(cors()); // Allow cross-origin requests
+
 app.get("/listings", async (req, res) => {
+  const query = req.query.q || "pokemon cards";
+
   try {
     const response = await fetch(
-      "https://api.ebay.com/buy/browse/v1/item_summary/search?q=pokemon%20cards&limit=10",
+      `https://api.ebay.com/buy/browse/v1/item_summary/search?q=${encodeURIComponent(query)}&limit=10`,
       {
         headers: {
           "Authorization": `Bearer ${process.env.EBAY_OAUTH_TOKEN}`,
