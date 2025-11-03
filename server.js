@@ -7,16 +7,17 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const username = "timeforgamesllc";
 
-app.use(cors()); // Allow cross-origin requests
+app.use(cors()); // Allow browser requests
 
 app.get("/listings", async (req, res) => {
-  const query = req.query.q || "pokemon cards";
+  const query = req.query.q || ""; // optional search term
+  const username = "YOUR_EBAY_USERNAME"; // <-- Replace with your eBay seller ID
 
   try {
+    // Fetch listings from eBay API, filtered by your seller ID
     const response = await fetch(
-      `https://api.ebay.com/buy/browse/v1/item_summary/search?q=pokemon&filter=sellerIds:{${username}}&limit=50`,
+      `https://api.ebay.com/buy/browse/v1/item_summary/search?q=${encodeURIComponent(query)}&filter=sellerIds:{${username}}&limit=50`,
       {
         headers: {
           "Authorization": `Bearer ${process.env.EBAY_OAUTH_TOKEN}`,
